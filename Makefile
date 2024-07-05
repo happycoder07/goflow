@@ -6,7 +6,7 @@ BUILDINFOSDET ?=
 
 DOCKER_REPO   := cloudflare/
 GOFLOW_NAME    := goflow
-GOFLOW_VERSION := $(shell git describe --tags $(git rev-list --tags --max-count=1))
+GOFLOW_VERSION := 3
 VERSION_PKG   := $(shell echo $(GOFLOW_VERSION) | sed 's/^v//g')
 ARCH          := x86_64
 LICENSE       := BSD-3
