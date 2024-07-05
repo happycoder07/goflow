@@ -20,6 +20,7 @@ var (
 	KafkaTLS   *bool
 	KafkaSASL  *bool
 	KafkaTopic *string
+	KafkaTopicJson *string
 	KafkaSrv   *string
 	KafkaBrk   *string
 
@@ -36,6 +37,7 @@ type KafkaState struct {
 	FixedLengthProto bool
 	producer         sarama.AsyncProducer
 	topic            string
+	topicjson		 string
 	hashing          bool
 	keying           []string
 }
