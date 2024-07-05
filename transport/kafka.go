@@ -55,6 +55,7 @@ func RegisterFlags() {
 	KafkaTLS = flag.Bool("kafka.tls", false, "Use TLS to connect to Kafka")
 	KafkaSASL = flag.Bool("kafka.sasl", false, "Use SASL/PLAIN data to connect to Kafka (TLS is recommended and the environment variables KAFKA_SASL_USER and KAFKA_SASL_PASS need to be set)")
 	KafkaTopic = flag.String("kafka.topic", "flow-messages", "Kafka topic to produce to")
+	KafkaTopicJson = flag.String("kafka.topicjson", "flow-messages-json", "Kafka topic to produce to")
 	KafkaSrv = flag.String("kafka.srv", "", "SRV record containing a list of Kafka brokers (or use kafka.out.brokers)")
 	KafkaBrk = flag.String("kafka.brokers", "127.0.0.1:9092,[::1]:9092", "Kafka brokers list separated by commas")
 
@@ -77,10 +78,10 @@ func StartKafkaProducerFromArgs(log utils.Logger) (*KafkaState, error) {
 	} else {
 		addrs = strings.Split(*KafkaBrk, ",")
 	}
-	return StartKafkaProducer(addrs, *KafkaTopic, *KafkaHashing, *KafkaKeying, *KafkaTLS, *KafkaSASL, *KafkaLogErrors, log)
+	return StartKafkaProducer(addrs, *KafkaTopic, *KafkaTopicJson,*KafkaHashing, *KafkaKeying, *KafkaTLS, *KafkaSASL, *KafkaLogErrors, log)
 }
 
-func StartKafkaProducer(addrs []string, topic string, hashing bool, keying string, useTls bool, useSasl bool, logErrors bool, log utils.Logger) (*KafkaState, error) {
+func StartKafkaProducer(addrs []string, topic string, topicjson string, hashing bool, keying string, useTls bool, useSasl bool, logErrors bool, log utils.Logger) (*KafkaState, error) {
 	kafkaConfig := sarama.NewConfig()
 	kafkaConfig.Version = kafkaConfigVersion
 	kafkaConfig.Producer.Return.Successes = false
@@ -178,10 +179,27 @@ func (s KafkaState) SendKafkaFlowMessage(flowMessage *flowmessage.FlowMessage) {
 		Key:   key,
 		Value: sarama.ByteEncoder(b),
 	}
+	var flowJson=FlowMessageToJSON(flowmessage);
+	log.Printf(flowJson);
+	
+	s.producer.Input() <- &sarama.ProducerMessage{
+		Topic: s.topicjson,
+		Key:   key,
+		Value: flowJson,
+	}
 }
 
 func (s KafkaState) Publish(msgs []*flowmessage.FlowMessage) {
 	for _, msg := range msgs {
 		s.SendKafkaFlowMessage(msg)
 	}
+}
+
+func FlowMessageToJSON(fmsg *flowmessage.FlowMessage) string {
+	filteredMessage := flowMessageFiltered(fmsg)
+	message := make([]string, len(filteredMessage))
+	for i, m := range filteredMessage {
+		message[i] = fmt.Sprintf("\"%s\":\"%s\"", m.Name, m.Value)
+	}
+	return "{" + strings.Join(message, ",") + "}"
 }
