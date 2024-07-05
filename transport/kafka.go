@@ -12,7 +12,6 @@ import (
 
 	sarama "github.com/Shopify/sarama"
 	flowmessage "github.com/cloudflare/goflow/v3/pb"
-	"github.com/cloudflare/goflow/v3/utils"
 	proto "github.com/golang/protobuf/proto"
 	utils "github.com/cloudflare/goflow/v3/utils"
 )
