@@ -188,7 +188,7 @@ func (s KafkaState) SendKafkaFlowMessage(flowMessage *flowmessage.FlowMessage) {
 	s.producer.Input() <- &sarama.ProducerMessage{
 		Topic: s.topicjson,
 		Key:   key,
-		Value: FlowMessageToJSON(flowmessage),
+		Value: utils.FlowMessageToJSON(flowMessage),
 	}
 }
 
