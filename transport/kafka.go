@@ -183,6 +183,7 @@ func (s KafkaState) SendKafkaFlowMessage(flowMessage *flowmessage.FlowMessage) {
 	}
 	// var flowJson=FlowMessageToJSON(flowmessage);
 	// log.Printf(flowJson);
+	fmt.Fprintln(os.Stdout, utils.FlowMessageToJSON(flowMessage))
 	
 	s.producer.Input() <- &sarama.ProducerMessage{
 		Topic: s.topicjson,
